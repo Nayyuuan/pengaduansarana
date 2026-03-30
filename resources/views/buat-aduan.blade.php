@@ -1,0 +1,68 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container mt-4">
+    <!-- Link Kembali ke Dashboard (Warna Red) -->
+    <a href="{{ route('dashboard.siswa') }}" class="btn btn-sm mb-3 fw-bold" 
+       style="color: #800000; border: 1px solid #800000; border-radius: 8px;">
+        ← Kembali ke Dashboard
+    </a>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 overflow-hidden" style="border-radius: 15px;">
+                {{-- Header Card --}}
+                <div class="card-header text-white fw-bold py-3 text-center" style="background: #800000;">
+                    BUAT ADUAN / ASPIRASI BARU
+                </div>
+                
+                <div class="card-body p-4 bg-white">
+                    <form action="{{ route('laporan.store') }}" method="POST">
+                        @csrf
+
+                        {{-- KATEGORI --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color: #555;">Kategori Sarana</label>
+                            <select name="id_kategori" class="form-select py-2" 
+                                    style="border-radius: 10px; border: 1px solid #ddd;" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach($kategori as $k)
+                                    <option value="{{ $k->id_kategori }}">{{ $k->ket_kategori }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        {{-- LOKASI --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color: #555;">Lokasi Kejadian/Sarana</label>
+                            <input type="text" name="lokasi" class="form-control py-2" 
+                                   style="border-radius: 10px; border: 1px solid #ddd;"
+                                   placeholder="Contoh: Ruang D 102, Lab Komp, Kantin" required>
+                        </div>
+
+                        {{-- ISI LAPORAN --}}
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="color: #555;">Detail Laporan</label>
+                            <textarea name="ket" class="form-control" rows="5" 
+                                      style="border-radius: 10px; border: 1px solid #ddd;"
+                                      placeholder="Jelaskan secara detail kerusakan atau keluhan Anda..." required></textarea>
+                        </div>
+
+                        {{-- Tombol Submit (Red) --}}
+                        <div class="d-grid mt-2">
+                            <button type="submit" class="btn text-white py-2 fw-bold" 
+                                    style="background: #b03030; border-radius: 10px; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(176, 48, 48, 0.2);">
+                                Kirim Laporan Sekarang
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <p class="text-center mt-3 text-muted small">
+                Data laporan yang kamu kirim akan langsung terintegrasi dengan petugas sarana sekolah.
+            </p>
+        </div>
+    </div>
+</div>
+@endsection
