@@ -12,7 +12,7 @@
         :root {
             --maroon: #800000;
             --maroon-light: #a52a2a;
-            --cream: #fffdf5;
+            --cream: #fdfaf0;
             --dark: #2d3436;
         }
 
@@ -27,7 +27,6 @@
             flex-direction: column;
         }
 
-        /* Container utama agar semua di tengah secara vertikal */
         .main-wrapper {
             flex: 1;
             display: flex;
@@ -37,19 +36,6 @@
             padding: 40px 10%;
         }
 
-        /* Logo di atas tengah */
-        .logo-top {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--maroon);
-            margin-bottom: 50px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            letter-spacing: 2px;
-        }
-
-        /* Layout Berdampingan (Side by Side) */
         .content-flex {
             display: flex;
             align-items: center;
@@ -59,7 +45,6 @@
             width: 100%;
         }
 
-        /* Bagian Kiri: Teks & Tombol */
         .text-content {
             flex: 1;
             text-align: left;
@@ -80,7 +65,6 @@
             line-height: 1.6;
         }
 
-        /* Bagian Kanan: Gambar */
         .hero-image {
             flex: 1;
             text-align: right;
@@ -92,7 +76,6 @@
             filter: drop-shadow(0 20px 40px rgba(128, 0, 0, 0.1));
         }
 
-        /* Buttons */
         .cta-buttons {
             display: flex;
             gap: 15px;
@@ -127,7 +110,6 @@
             opacity: 0.9;
         }
 
-        /* Footer */
         .footer {
             padding: 30px;
             text-align: center;
@@ -152,10 +134,7 @@
 <body>
 
     <div class="main-wrapper">
-        <!-- Konten Berdampingan -->
         <div class="content-flex">
-            
-            <!-- Kiri: Penjelasan & Tombol -->
             <div class="text-content">
                 <h1>Sampaikan Keluhan Anda, Bangun Sekolah Lebih Baik.</h1>
                 <p>Laporkan setiap kerusakan sarana sekolah secara cepat, transparan, dan terintegrasi langsung dengan petugas sarpras.</p>
@@ -169,12 +148,9 @@
                     </a>
                 </div>
             </div>
-
-            <!-- Kanan: Gambar Ilustrasi -->
             <div class="hero-image">
                 <img src="https://illustrations.popsy.co/amber/student-going-to-school.svg" alt="Student Illustration">
             </div>
-
         </div>
     </div>
 

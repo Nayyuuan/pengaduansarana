@@ -2,77 +2,45 @@
 
 namespace App\Http\Controllers;
 
-// menangani input form
 use Illuminate\Http\Request;
-
-// query database
 use Illuminate\Support\Facades\DB;
-
-// enkripsi password
 use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    // ======================
-    // HALAMAN LOGIN
-    // ======================
-    public function login()
-    {
-        return view('login');
-    }
+    public function login() { return view('login'); }
+    public function register() { return view('register'); }
 
-    // ======================
-    // HALAMAN REGISTER
-    // ======================
-    public function register()
-    {
-        return view('register');
-    }
-
-    // ======================
-    // PROSES LOGIN
-    // ======================
     public function prosesLogin(Request $request)
     {
         $username = $request->username;
         $password = $request->password;
 
-        // ===== CEK ADMIN =====
-        $admin = DB::table('admin')
-            ->where('username', $username)
-            ->first();
-
+        $admin = DB::table('admin')->where('username', $username)->first();
         if ($admin && Hash::check($password, $admin->password)) {
-
-            session([
-                'role' => 'admin',
-                'username' => $admin->username
+            session(['role' => 'admin', 'username' => $admin->username]);
+            DB::table('log_aktivitas')->insert([
+                'username' => $admin->username,
+                'aktivitas' => 'Login ke sistem',
+                'created_at' => now()
             ]);
-
-            return redirect('/dashboard-admin');
+            return redirect('/dashboard-admin')->with('success', 'Halo Admin! Selamat bekerja.');
         }
 
-        // ===== CEK SISWA =====
-        $siswa = DB::table('siswa')
-            ->where('nis', $username)
-            ->first();
-
+        $siswa = DB::table('siswa')->where('nis', $username)->first();
         if ($siswa && Hash::check($password, $siswa->password)) {
-
-            session([
-                'role' => 'siswa',
-                'nis' => $siswa->nis
+            session(['role' => 'siswa', 'nis' => $siswa->nis]);
+            DB::table('log_aktivitas')->insert([
+                'nis' => $siswa->nis,
+                'aktivitas' => 'Login ke sistem',
+                'created_at' => now()
             ]);
-
-            return redirect('/dashboard-siswa');
+            return redirect('/dashboard-siswa')->with('success', 'Yey! Berhasil masuk. Halo !' . $siswa->nama);
         }
 
-        return back()->with('error', 'Username atau password salah');
+        return back()->with('error', 'Akses ditolak! NIS atau Password salah.');
     }
 
-    // ======================
-    // PROSES REGISTER SISWA
-    // ======================
     public function prosesRegister(Request $request)
     {
         $request->validate([
@@ -84,20 +52,12 @@ class AuthController extends Controller
         ]);
 
         $namaFoto = null;
-
-        // ===== UPLOAD FOTO =====
         if ($request->hasFile('foto_profile')) {
-
             $file = $request->file('foto_profile');
-
-            // nama file unik
             $namaFoto = time().'_'.$file->getClientOriginalName();
-
-            // simpan ke storage/app/public/foto_profile
-            $file->storeAs('foto_profile', $namaFoto, 'public');
+            $file->move(public_path('storage/foto_profile'), $namaFoto);
         }
 
-        // simpan ke database
         DB::table('siswa')->insert([
             'nis' => $request->nis,
             'nama' => $request->nama,
@@ -108,50 +68,20 @@ class AuthController extends Controller
             'updated_at' => now()
         ]);
 
-        return redirect('/login')->with('success','Registrasi berhasil!');
+        return redirect('/login')->with('success','Akun berhasil dibuat! Silakan login ya.');
     }
 
-    // ======================
-    // DASHBOARD SISWA
-    // ======================
-    public function dashboardSiswa()
-    {
-    $nis = session('nis');
-
-    if(!$nis){
-        return redirect('/login');
-    }
-
-    $siswa = DB::table('siswa')
-        ->where('nis',$nis)
-        ->first();
-
-    return view('dashboard-siswa', compact('siswa'));
-    }
-
-    // ======================
-    // DASHBOARD ADMIN
-    // ======================
-    public function dashboardAdmin()
-    {
-        // cek role admin
-        if (session('role') !== 'admin') {
-            return redirect('/login');
-        }
-
-        $admin = DB::table('admin')
-            ->where('username', session('username'))
-            ->first();
-
-        return view('dashboard-admin', compact('admin'));
-    }
-
-    // ======================
-    // LOGOUT
-    // ======================
     public function logout()
     {
+        $nis = session('nis');
+        $username = session('username');
+        DB::table('log_aktivitas')->insert([
+            'nis' => $nis,
+            'username' => $username,
+            'aktivitas' => 'Logout dari sistem',
+            'created_at' => now()
+        ]);
         session()->flush();
-        return redirect('/login')->with('success', 'Anda telah berhasil logout.');
+        return redirect('/login')->with('success', 'Sampai jumpa lagi!');
     }
 }

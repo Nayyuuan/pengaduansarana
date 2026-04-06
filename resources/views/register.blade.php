@@ -13,7 +13,7 @@
             align-items: center;
             min-height: 100vh;
             margin: 20px 0;
-            background: #fffdf5; /* Cream Background */
+            background: #fdfaf0; 
         }
 
         .register-card {

@@ -13,7 +13,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            background: #fffdf5; /* Cream Pastel Background */
+            background: #fdfaf0; 
         }
 
         .login-card {
@@ -21,8 +21,8 @@
             padding: 40px;
             border-radius: 20px;
             width: 350px;
-            box-shadow: 0 15px 35px rgba(128, 0, 0, 0.1); /* Shadow warna maroon tipis */
-            border-top: 5px solid #800000; /* Garis Maroon di atas */
+            box-shadow: 0 15px 35px rgba(128, 0, 0, 0.1);
+            border-top: 5px solid #800000; 
         }
 
         h2 {
