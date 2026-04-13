@@ -35,7 +35,7 @@ class AuthController extends Controller
                 'aktivitas' => 'Login ke sistem',
                 'created_at' => now()
             ]);
-            return redirect('/dashboard-siswa')->with('success', 'Yey! Berhasil masuk. Halo !' . $siswa->nama);
+            return redirect('/dashboard-siswa')->with('success', 'Yey! Berhasil masuk. Halo ' . $siswa->nama);
         }
 
         return back()->with('error', 'Akses ditolak! NIS atau Password salah.');

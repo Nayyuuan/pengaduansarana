@@ -2,12 +2,11 @@
 
 @section('content')
 <div class="container py-5">
-    
-    <!-- Tombol Kembali ke Dashboard -->
-    <a href="{{ route('dashboard.siswa') }}" class="btn btn-sm mb-3 fw-bold" 
-       style="color: #800000; border: 1px solid #800000; border-radius: 8px;">
-        ← Kembali ke Dashboard
-    </a>
+    <div class="mb-3">
+        <a href="{{ route('dashboard.siswa') }}" class="btn-back">
+            ← Kembali ke Dashboard
+        </a>
+    </div>
 
     <div class="mb-4">
         <h2 class="fw-bold text-dark">Riwayat Aspirasi Saya</h2>
@@ -23,6 +22,7 @@
                             <th class="py-3 ps-4">No</th>
                             <th class="py-3">Lokasi</th>
                             <th class="py-3">Keterangan</th>
+                            <th class="py-3">Bukti Foto</th>
                             <th class="py-3">Status</th>
                             <th class="py-3">Feedback Admin</th>
                             <th class="py-3 pe-4">Waktu Pembuatan</th>
@@ -33,7 +33,21 @@
                         <tr>
                             <td class="ps-4 fw-bold">{{ $loop->iteration }}</td>
                             <td><span class="badge bg-light text-dark border">{{ $l->lokasi }}</span></td>
-                            <td class="text-start" style="max-width: 250px;">{{ $l->ket }}</td>
+                            <td class="text-start" style="max-width: 200px;">{{ $l->ket }}</td>
+                            
+                            {{-- BAGIAN FOTO --}}
+                            <td>
+                                @if($l->foto)
+                                    <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" 
+                                         width="50" height="50" 
+                                         class="rounded border shadow-sm img-thumbnail" 
+                                         style="object-fit: cover; cursor: pointer;"
+                                         data-bs-toggle="modal" data-bs-target="#modalFotoSiswa{{ $l->id_pelaporan }}">
+                                @else
+                                    <span class="text-muted small italic">No Photo</span>
+                                @endif
+                            </td>
+
                             <td>
                                 @if($l->status == 'Menunggu')
                                     <span class="badge rounded-pill bg-secondary px-3">Menunggu</span>
@@ -68,9 +82,23 @@
                                 </div>
                             </td>
                         </tr>
+                        @if($l->foto)
+                        <div class="modal fade" id="modalFotoSiswa{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content bg-transparent border-0">
+                                    <div class="modal-body p-0 text-center">
+                                        <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" 
+                                             class="img-fluid rounded-4 shadow-lg" 
+                                             data-bs-dismiss="modal" style="cursor: zoom-out;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
                         @empty
                         <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">Belum ada data laporan.</td>
+                            <td colspan="7" class="text-center py-5 text-muted">Belum ada data laporan.</td>
                         </tr>
                         @endforelse
                     </tbody>
@@ -81,30 +109,23 @@
 </div>
 
 <style>
-    /* Styling khusus tombol outline maroon */
-    .btn-outline-maroon {
-        color: #800000;
-        border-color: #800000;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: 0.3s;
-        text-decoration: none;
+    .btn-back {
         display: inline-block;
+        padding: 6px 20px;
+        color: #800000;
+        border: 1.5px solid #800000;
+        border-radius: 50px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: 0.3s;
     }
-
-    .btn-outline-maroon:hover {
+    .btn-back:hover {
         background-color: #800000;
         color: white;
     }
-
-    .table thead th {
-        font-weight: 600;
-        font-size: 0.9rem;
-        border: none;
-    }
-
-    .table tbody td {
-        font-size: 0.9rem;
-    }
+    .table thead th { font-weight: 600; font-size: 0.9rem; border: none; }
+    .table tbody td { font-size: 0.9rem; }
+    .img-thumbnail:hover { transform: scale(1.1); transition: 0.2s; }
 </style>
 @endsection

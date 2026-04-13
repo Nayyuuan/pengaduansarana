@@ -6,7 +6,6 @@
        style="color: #800000; border: 1px solid #800000; border-radius: 8px;">
         ← Kembali ke Dashboard
     </a>
-
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm border-0 overflow-hidden" style="border-radius: 15px;">
@@ -31,7 +30,7 @@
 
                         <div class="mb-4">
                             <label class="form-label fw-bold">Lokasi Kejadian/Sarana</label>
-                            <input type="text" name="lokasi" class="form-control py-2" placeholder="Contoh: Lab Komp" required>
+                            <input type="text" name="lokasi" class="form-control py-2" placeholder="Contoh: Ruang D 102, Bengkel DKV..." required>
                         </div>
 
                         <div class="mb-4">
