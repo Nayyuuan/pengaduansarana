@@ -28,22 +28,14 @@
                             </select>
                         </div>
 
-                        <!-- LOKASI (SEKARANG DROPDOWN) -->
+                        <!-- LOKASI (DINAMIS DARI DATABASE) -->
                         <div class="mb-4">
                             <label class="form-label fw-bold" style="color: #555;">Lokasi Utama</label>
-                            <select name="lokasi" class="form-select py-2" style="border-radius: 10px; border: 1px solid #ddd;" required>
+                            <select name="id_lokasi" class="form-select py-2" style="border-radius: 10px; border: 1px solid #ddd;" required>
                                 <option value="">-- Pilih Lokasi Kejadian --</option>
-                                <option value="Gedung A (Lantai 1)">Gedung A (Lantai 1)</option>
-                                <option value="Gedung A (Lantai 2)">Gedung A (Lantai 2)</option>
-                                <option value="Gedung B (Lantai 1)">Gedung B (Lantai 1)</option>
-                                <option value="Gedung B (Lantai 2)">Gedung B (Lantai 2)</option>
-                                <option value="Lab Komputer / RPL">Lab Komputer / RPL</option>
-                                <option value="Bengkel / Workshop">Bengkel / Workshop</option>
-                                <option value="Perpustakaan">Perpustakaan</option>
-                                <option value="Kantin">Kantin</option>
-                                <option value="Lapangan Sekolah">Lapangan Sekolah</option>
-                                <option value="Masjid / Musholla">Masjid / Musholla</option>
-                                <option value="Lainnya">Lainnya</option>
+                                @foreach($lokasi as $lok)
+                                    <option value="{{ $lok->id_lokasi }}">{{ $lok->nama_lokasi }}</option>
+                                @endforeach
                             </select>
                         </div>
 

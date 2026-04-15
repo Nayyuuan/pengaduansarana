@@ -23,7 +23,7 @@ class SiswaDashboardController extends Controller
             return redirect('/login');
         }
 
-        // --- HITUNG STATISTIK (DITAMBAH MENUNGGU) ---
+        // --- HITUNG STATISTIK ---
         $total = DB::table('input_aspirasi')->where('nis', $nis)->count();
 
         $menunggu = DB::table('input_aspirasi')
@@ -44,12 +44,13 @@ class SiswaDashboardController extends Controller
             ->where('aspirasi.status', 'Selesai')
             ->count();
 
-        // Ambil data laporan
+        // Ambil data laporan (DITAMBAH FOTO FEEDBACK)
         $laporan = DB::table('input_aspirasi')
             ->join('aspirasi', 'input_aspirasi.id_pelaporan', '=', 'aspirasi.id_aspirasi')
             ->join('kategori', 'input_aspirasi.id_kategori', '=', 'kategori.id_kategori')
+            ->join('lokasi', 'input_aspirasi.id_lokasi', '=', 'lokasi.id_lokasi')
             ->where('input_aspirasi.nis', $nis)
-            ->select('input_aspirasi.*', 'aspirasi.status', 'aspirasi.feedback', 'kategori.ket_kategori')
+            ->select('input_aspirasi.*', 'aspirasi.status', 'aspirasi.feedback', 'aspirasi.foto_feedback', 'kategori.ket_kategori', 'lokasi.nama_lokasi')
             ->orderBy('input_aspirasi.created_at', 'desc')
             ->get();
 
@@ -68,8 +69,11 @@ class SiswaDashboardController extends Controller
 
         $siswa = DB::table('siswa')->where('nis', $nis)->first();
         $kategori = DB::table('kategori')->get();
+        
+        // AMBIL DATA LOKASI DARI DATABASE
+        $lokasi = DB::table('lokasi')->get(); 
 
-        return view('buat-aduan', compact('kategori', 'siswa'));
+        return view('buat-aduan', compact('kategori', 'siswa', 'lokasi'));
     }
 
     // ==========================================
@@ -81,7 +85,7 @@ class SiswaDashboardController extends Controller
 
         $request->validate([
             'id_kategori' => 'required',
-            'lokasi' => 'required',
+            'id_lokasi' => 'required',
             'ket' => 'required',
             'foto' => 'required|image|max:2048'
         ]);
@@ -98,7 +102,7 @@ class SiswaDashboardController extends Controller
         $idTerakhir = DB::table('input_aspirasi')->insertGetId([
             'nis' => $nis,
             'id_kategori' => $request->id_kategori,
-            'lokasi' => $request->lokasi,
+            'id_lokasi' => $request->id_lokasi,
             'ket' => $request->ket,
             'foto' => $namaFoto,
             'created_at' => now(),
@@ -118,7 +122,7 @@ class SiswaDashboardController extends Controller
         // LOG AKTIVITAS
         DB::table('log_aktivitas')->insert([
             'nis' => $nis,
-            'aktivitas' => 'Mengirim laporan pengaduan baru di ' . $request->lokasi,
+            'aktivitas' => 'Mengirim laporan pengaduan baru',
             'created_at' => now()
         ]);
 
@@ -134,18 +138,19 @@ class SiswaDashboardController extends Controller
         if (!$nis) {
             return redirect('/login');
         }
-
         $siswa = DB::table('siswa')->where('nis', $nis)->first();
+        $lokasi = DB::table('lokasi')->get(); 
 
         $laporan = DB::table('input_aspirasi')
             ->join('aspirasi', 'input_aspirasi.id_pelaporan', '=', 'aspirasi.id_aspirasi')
             ->join('kategori', 'input_aspirasi.id_kategori', '=', 'kategori.id_kategori')
+            ->join('lokasi', 'input_aspirasi.id_lokasi', '=', 'lokasi.id_lokasi')
             ->where('input_aspirasi.nis', $nis)
-            ->select('input_aspirasi.*', 'aspirasi.status', 'aspirasi.feedback', 'kategori.ket_kategori')
+            ->select('input_aspirasi.*', 'aspirasi.status', 'aspirasi.feedback', 'aspirasi.foto_feedback', 'kategori.ket_kategori', 'lokasi.nama_lokasi')
             ->orderBy('input_aspirasi.created_at', 'desc')
             ->get();
 
-        return view('history-siswa', compact('siswa', 'laporan'));
+        return view('history-siswa', compact('siswa', 'laporan', 'lokasi'));
     }
 
     // ==========================================
@@ -155,7 +160,7 @@ class SiswaDashboardController extends Controller
     {
         $request->validate([
             'id_kategori' => 'required',
-            'lokasi' => 'required',
+            'id_lokasi' => 'required',
             'ket' => 'required',
             'foto' => 'nullable|image|max:2048'
         ]);
@@ -167,7 +172,7 @@ class SiswaDashboardController extends Controller
 
             DB::table('input_aspirasi')->where('id_pelaporan', $id)->update([
                 'id_kategori' => $request->id_kategori,
-                'lokasi' => $request->lokasi,
+                'id_lokasi' => $request->id_lokasi,
                 'ket' => $request->ket,
                 'foto' => $namaFoto,
                 'updated_at' => now()
@@ -175,7 +180,7 @@ class SiswaDashboardController extends Controller
         } else {
             DB::table('input_aspirasi')->where('id_pelaporan', $id)->update([
                 'id_kategori' => $request->id_kategori,
-                'lokasi' => $request->lokasi,
+                'id_lokasi' => $request->id_lokasi,
                 'ket' => $request->ket,
                 'updated_at' => now()
             ]);

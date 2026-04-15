@@ -65,7 +65,7 @@
                     <tr>
                         <th class="py-3 ps-4">No</th>
                         <th class="py-3">Pelapor</th>
-                        <th class="py-3">Detail & Lokasi</th>
+                        <th class="py-3 text-start">Detail & Lokasi</th> {{-- RATA KIRI --}}
                         <th class="py-3">Foto</th>
                         <th class="py-3">Status</th>
                         <th class="py-3 pe-4">Aksi</th>
@@ -79,11 +79,21 @@
                             <div class="fw-bold">{{ $l->nama }}</div>
                             <small class="text-muted">{{ $l->nis }}</small>
                         </td>
+                        
+                        {{-- PERBAIKAN LOKASI: RATA KIRI + WARNA SESUAI STATUS --}}
                         <td class="text-start">
-                            <span class="badge bg-light text-maroon border mb-1">{{ $l->ket_kategori }}</span>
-                            <div class="small fw-bold text-dark">{{ $l->lokasi }}</div>
-                            <div class="small text-muted text-truncate" style="max-width: 200px;">{{ $l->ket }}</div>
+                            @php
+                                $warna_lokasi = 'secondary';
+                                if($l->status == 'Proses') $warna_lokasi = 'warning text-dark';
+                                if($l->status == 'Selesai') $warna_lokasi = 'success';
+                            @endphp
+                            <span class="badge bg-{{ $warna_lokasi }} mb-1 shadow-sm">
+                                <i class="bi bi-geo-alt me-1"></i> {{ $l->nama_lokasi }}
+                            </span>
+                            <div class="small fw-bold text-dark">{{ $l->ket_kategori }}</div>
+                            <div class="small text-muted text-truncate" style="max-width: 250px;">{{ $l->ket }}</div>
                         </td>
+
                         <td>
                             @if($l->foto)
                                 <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" width="50" height="50" class="rounded border shadow-sm" style="object-fit: cover; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalFoto{{ $l->id_pelaporan }}">
@@ -101,7 +111,9 @@
                             @endif
                         </td>
                         <td class="pe-4">
-                            <button class="btn btn-maroon btn-sm px-3 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#modalTanggapi{{ $l->id_pelaporan }}">Tanggapi</button>
+                            <button class="btn btn-maroon btn-sm px-3 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#modalTanggapi{{ $l->id_pelaporan }}">
+                                Tanggapi
+                            </button>
                         </td>
                     </tr>
 
@@ -109,14 +121,15 @@
                     <div class="modal fade" id="modalTanggapi{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content border-0" style="border-radius: 20px;">
-                                <form action="{{ route('admin.tanggapi', $l->id_pelaporan) }}" method="POST">
+                                {{-- WAJIB TAMBAH enctype="multipart/form-data" --}}
+                                <form action="{{ route('admin.tanggapi', $l->id_pelaporan) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     <div class="modal-body p-4">
-                                        <h5 class="fw-bold text-maroon mb-3">Kasih Tanggapan</h5>
-                                        <div class="mb-3 p-3 bg-light rounded-3 small">
+                                        <h5 class="fw-bold text-maroon mb-3 text-start">Kasih Tanggapan</h5>
+                                        <div class="mb-3 p-3 bg-light rounded-3 small text-start">
                                             <p class="mb-1 text-muted">Aspirasi: <b>"{{ $l->ket }}"</b></p>
                                         </div>
-                                        <div class="mb-3">
+                                        <div class="mb-3 text-start">
                                             <label class="form-label fw-bold">Update Status</label>
                                             <select name="status" class="form-select" required>
                                                 <option value="Menunggu" {{ $l->status == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
@@ -124,9 +137,15 @@
                                                 <option value="Selesai" {{ $l->status == 'Selesai' ? 'selected' : '' }}>Selesai / Tuntas</option>
                                             </select>
                                         </div>
-                                        <div class="mb-0">
+                                        <div class="mb-3 text-start">
                                             <label class="form-label fw-bold">Pesan Feedback</label>
                                             <textarea name="feedback" class="form-control" rows="4" placeholder="Balasan untuk siswa..." required>{{ $l->feedback }}</textarea>
+                                        </div>
+                                        {{-- INPUT FOTO FEEDBACK DARI ADMIN --}}
+                                        <div class="mb-0 text-start">
+                                            <label class="form-label fw-bold">Upload Bukti Perbaikan (Optional)</label>
+                                            <input type="file" name="foto_feedback" class="form-control" accept="image/*">
+                                            <small class="text-muted italic">Kirim foto bukti jika sarana sudah diperbaiki.</small>
                                         </div>
                                     </div>
                                     <div class="modal-footer border-0 p-4 pt-0">
@@ -143,7 +162,7 @@
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content bg-transparent border-0">
                                 <div class="modal-body p-0 text-center">
-                                    <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" class="img-fluid rounded-4">
+                                    <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" class="img-fluid rounded-4 shadow-lg" data-bs-dismiss="modal" style="cursor: zoom-out;">
                                 </div>
                             </div>
                         </div>

@@ -21,48 +21,68 @@
                     <thead style="background-color: #800000; color: white;">
                         <tr>
                             <th class="py-3 ps-4">No</th>
-                            <th class="py-3">Lokasi</th>
+                            <th class="py-3 text-start">Lokasi</th>
                             <th class="py-3">Keterangan</th>
-                            <th class="py-3">Bukti Foto</th>
+                            <th class="py-3">Foto Siswa</th>
                             <th class="py-3">Status</th>
                             <th class="py-3">Feedback Admin</th>
+                            <th class="py-3">Foto Admin</th>
                             <th class="py-3">Aksi</th> 
-                            <th class="py-3 pe-4">Waktu Pembuatan</th>
+                            <th class="py-3 pe-4">Waktu</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($laporan as $l)
+                        @php
+                            $status_color = 'secondary';
+                            if($l->status == 'Proses') $status_color = 'warning';
+                            if($l->status == 'Selesai') $status_color = 'success';
+                        @endphp
                         <tr>
                             <td class="ps-4 fw-bold">{{ $loop->iteration }}</td>
-                            <td><span class="badge bg-light text-dark border">{{ $l->lokasi }}</span></td>
-                            <td class="text-start" style="max-width: 200px;">{{ $l->ket }}</td>
+                            
+                            {{-- LOKASI RATA KIRI, TANPA IKON --}}
+                            <td class="text-start">
+                                <div class="fw-bold text-dark">
+                                    {{ $l->nama_lokasi }}
+                                </div>
+                            </td>
+
+                            <td class="text-start" style="max-width: 150px;">{{ $l->ket }}</td>
+                            
+                            {{-- FOTO DARI SISWA --}}
                             <td>
                                 @if($l->foto)
-                                    <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" width="50" height="50" class="rounded border shadow-sm img-thumbnail" style="object-fit: cover; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalFotoSiswa{{ $l->id_pelaporan }}">
+                                    <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" width="45" height="45" class="rounded border shadow-sm img-thumbnail" style="object-fit: cover; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalFotoSiswa{{ $l->id_pelaporan }}">
                                 @else
-                                    <span class="text-muted small italic">No Photo</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($l->status == 'Menunggu')
-                                    <span class="badge rounded-pill bg-secondary px-3">Menunggu</span>
-                                @elseif($l->status == 'Proses')
-                                    <span class="badge rounded-pill bg-warning text-dark px-3">Diproses</span>
-                                @else
-                                    <span class="badge rounded-pill bg-success px-3">Selesai</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($l->feedback)
-                                    <div class="p-2 border-start border-3 border-danger bg-light small text-dark text-start">
-                                        {{ $l->feedback }}
-                                    </div>
-                                @else
-                                    <span class="text-muted small italic">Belum ada tanggapan</span>
+                                    <span class="text-muted small">No Photo</span>
                                 @endif
                             </td>
 
-                            {{-- TOMBOL EDIT & HAPUS (HANYA MUNCUL JIKA STATUS MENUNGGU) --}}
+                            <td>
+                                <span class="badge rounded-pill bg-{{ $status_color }} {{ $l->status == 'Proses' ? 'text-dark' : '' }} px-3">
+                                    {{ $l->status }}
+                                </span>
+                            </td>
+
+                            {{-- FEEDBACK ADMIN --}}
+                            <td>
+                                @if($l->feedback)
+                                    <div class="p-2 border-start border-4 border-{{ $status_color }} bg-light small text-dark text-start" style="min-width: 150px;">
+                                        {{ $l->feedback }}
+                                    </div>
+                                @else
+                                    <span class="text-muted small italic">Belum ditanggapi</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if(isset($l->foto_feedback) && $l->foto_feedback)
+                                    <img src="{{ asset('upload_feedback/'.$l->foto_feedback) }}" width="45" height="45" class="rounded border border-{{ $status_color }} shadow-sm img-thumbnail" style="object-fit: cover; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalFeedback{{ $l->id_pelaporan }}">
+                                @else
+                                    <span class="text-muted small italic">No Bukti</span>
+                                @endif
+                            </td>
+
                             <td>
                                 @if($l->status == 'Menunggu')
                                     <div class="d-flex gap-1 justify-content-center">
@@ -71,28 +91,17 @@
                                         </button>
                                         <form action="{{ route('laporan.destroy', $l->id_pelaporan) }}" method="POST" onsubmit="return confirm('Yakin ingin membatalkan laporan ini?')">
                                             @csrf
-                                            <button type="submit" class="btn btn-sm btn-outline-danger">
-                                                <i class="bi bi-trash"></i>
-                                            </button>
+                                            <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
                                         </form>
                                     </div>
                                 @else
-                                    <i class="bi bi-lock-fill text-muted" title="Sudah diproses, tidak bisa diubah"></i>
+                                    <i class="bi bi-lock-fill text-muted"></i>
                                 @endif
                             </td>
 
                             <td class="pe-4 text-start">
                                 <div class="small">
-                                    <div class="fw-bold">
-                                        @php
-                                            $hari = date('l', strtotime($l->created_at));
-                                            $daftar_hari = [
-                                                'Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa',
-                                                'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'
-                                            ];
-                                        @endphp
-                                        {{ $daftar_hari[$hari] }}, {{ date('d M Y', strtotime($l->created_at)) }}
-                                    </div>
+                                    <div class="fw-bold">{{ date('d M Y', strtotime($l->created_at)) }}</div>
                                     <div class="text-muted">{{ date('H:i', strtotime($l->created_at)) }} WIB</div>
                                 </div>
                             </td>
@@ -110,9 +119,8 @@
                                         @csrf
                                         <div class="modal-body text-start">
                                             <div class="mb-3">
-                                                <label class="form-label fw-bold small">Kategori Sarana</label>
-                                                <select name="id_kategori" class="form-select shadow-sm" required>
-                                                    {{-- Kita perlu variabel $kategori dari controller --}}
+                                                <label class="form-label fw-bold small">Kategori</label>
+                                                <select name="id_kategori" class="form-select" required>
                                                     @foreach(DB::table('kategori')->get() as $k)
                                                         <option value="{{ $k->id_kategori }}" {{ $l->id_kategori == $k->id_kategori ? 'selected' : '' }}>{{ $k->ket_kategori }}</option>
                                                     @endforeach
@@ -120,42 +128,50 @@
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold small">Lokasi</label>
-                                                <input type="text" name="lokasi" class="form-control shadow-sm" value="{{ $l->lokasi }}" required>
+                                                <select name="id_lokasi" class="form-select" required>
+                                                    @foreach($lokasi as $lok)
+                                                        <option value="{{ $lok->id_lokasi }}" {{ $l->id_lokasi == $lok->id_lokasi ? 'selected' : '' }}>{{ $lok->nama_lokasi }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold small">Keterangan</label>
-                                                <textarea name="ket" class="form-control shadow-sm" rows="3" required>{{ $l->ket }}</textarea>
+                                                <textarea name="ket" class="form-control" rows="3" required>{{ $l->ket }}</textarea>
                                             </div>
                                             <div class="mb-0">
-                                                <label class="form-label fw-bold small">Ganti Foto (Optional)</label>
-                                                <input type="file" name="foto" class="form-control shadow-sm" accept="image/*">
+                                                <label class="form-label fw-bold small">Ganti Foto Bukti (Optional)</label>
+                                                <input type="file" name="foto" class="form-control" accept="image/*">
                                             </div>
                                         </div>
                                         <div class="modal-footer border-0">
-                                            <button type="submit" class="btn btn-maroon w-100 py-2 fw-bold" style="border-radius: 10px;">Simpan Perubahan</button>
+                                            <button type="submit" class="btn btn-maroon w-100 py-2 fw-bold" style="border-radius: 10px; background: #800000; color:white;">Simpan Perubahan</button>
                                         </div>
                                     </form>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- MODAL PREVIEW FOTO -->
+                        <!-- MODAL FOTO SISWA -->
                         @if($l->foto)
                         <div class="modal fade" id="modalFotoSiswa{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-transparent border-0 text-center"><img src="{{ asset('upload_aspirasi/'.$l->foto) }}" class="img-fluid rounded-4 shadow-lg" data-bs-dismiss="modal" style="cursor: zoom-out;"></div></div>
+                        </div>
+                        @endif
+
+                        <!-- MODAL FOTO ADMIN (FIXED) -->
+                        @if(!empty($l->foto_feedback))
+                        <div class="modal fade" id="modalFeedback{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content bg-transparent border-0">
-                                    <div class="modal-body p-0 text-center">
-                                        <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" class="img-fluid rounded-4 shadow-lg" data-bs-dismiss="modal" style="cursor: zoom-out;">
-                                    </div>
+                                <div class="modal-content bg-transparent border-0 text-center">
+                                    <img src="{{ asset('upload_feedback/'.$l->foto_feedback) }}" class="img-fluid rounded-4 shadow-lg" data-bs-dismiss="modal" style="cursor: zoom-out;">
+                                    <p class="text-white mt-2 fw-bold">Bukti Perbaikan Selesai dari Admin</p>
                                 </div>
                             </div>
                         </div>
                         @endif
 
                         @empty
-                        <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">Belum ada data laporan.</td>
-                        </tr>
+                        <tr><td colspan="9" class="text-center py-5 text-muted">Belum ada data laporan.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -165,9 +181,8 @@
 </div>
 
 <style>
-    .btn-maroon { background: #800000; color: white; border: none; }
-    .btn-maroon:hover { background: #550000; color: white; }
-    .btn-back { display: inline-block; padding: 6px 20px; color: #800000; border: 1.5px solid #800000; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
-    .btn-back:hover { background-color: #800000; color: white; }
+    .table thead th { font-weight: 600; font-size: 0.85rem; border: none; }
+    .table tbody td { font-size: 0.85rem; }
+    .img-thumbnail:hover { transform: scale(1.1); transition: 0.2s; }
 </style>
 @endsection
