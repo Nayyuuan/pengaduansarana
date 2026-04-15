@@ -10,7 +10,7 @@
     </div>
 
     <div class="mb-4">
-        <h2 class="fw-bold text-dark">Riwayat Aspirasi Saya</h2>
+        <h2 class="fw-bold text-dark">Riwayat Laporan Saya</h2>
         <p class="text-muted">Daftar laporan kerusakan sarana yang telah kamu kirimkan.</p>
     </div>
 
