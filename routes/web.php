@@ -50,3 +50,6 @@ Route::get('/kelola-aspirasi', [AdminController::class, 'kelola'])->name('admin.
 Route::post('/tanggapi-aspirasi/{id}', [AdminController::class, 'tanggapi'])->name('admin.tanggapi');
 // Hitori Admin
 Route::get('/history-admin', [AdminController::class, 'history'])->name('admin.history');
+// Route untuk Edit & Hapus Laporan Siswa
+Route::post('/laporan/update/{id}', [SiswaDashboardController::class, 'update'])->name('laporan.update');
+Route::post('/laporan/hapus/{id}', [SiswaDashboardController::class, 'destroy'])->name('laporan.destroy');

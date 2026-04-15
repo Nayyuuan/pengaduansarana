@@ -5,8 +5,9 @@
     
     <!-- Tombol Kembali -->
     <div class="mb-3">
-        <a href="{{ route('dashboard.admin') }}" class="btn-back">
-            ← Kembali ke Dashboard
+        <a href="{{ route('dashboard.admin') }}" class="btn btn-sm mb-3 fw-bold" 
+        style="color: #800000; border: 1px solid #800000; border-radius: 8px;">
+        ← Kembali ke Dashboard
         </a>
     </div>
 
