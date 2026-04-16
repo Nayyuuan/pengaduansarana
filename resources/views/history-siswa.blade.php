@@ -1,3 +1,34 @@
+{{--
+=============================================================================
+HALAMAN: RIWAYAT LAPORAN SISWA
+=============================================================================
+Fungsi: Menampilkan daftar semua laporan yang pernah dibuat oleh siswa yang sedang login
+Route: history.siswa (GET)
+Controller: SiswaDashboardController@history
+
+DEPENDENSI:
+- Layout: layouts.app
+- CSS: Bootstrap 5, Bootstrap Icons
+- JavaScript: Bootstrap JS (untuk modal)
+- Data: variabel $laporan dan $lokasi dari controller
+
+FITUR YANG TERSEDIA:
+1. Tabel daftar laporan dengan status
+2. Preview foto laporan dan foto feedback
+3. Edit laporan (hanya untuk status 'Menunggu')
+4. Hapus/batalkan laporan (hanya untuk status 'Menunggu')
+5. Menampilkan feedback admin jika sudah ada
+
+PERBEDAAN DENGAN HALAMAN DASHBOARD SISWA:
+- Dashboard: menampilkan ringkasan statistik + beberapa laporan
+- History: menampilkan SEMUA laporan dengan detail lengkap + aksi edit/hapus
+
+CATATAN PENTING:
+- Hanya laporan dengan status 'Menunggu' yang bisa diedit/dihapus
+- Laporan yang sudah diproses atau selesai tidak bisa diubah
+- Foto laporan disimpan di folder public/upload_aspirasi/
+- Foto feedback admin disimpan di folder public/upload_feedback/
+--}}
 @extends('layouts.app')
 
 @section('content')
@@ -7,14 +38,37 @@
         ← Kembali ke Dashboard
     </a>
     <div class="row justify-content-center">
+        {{-- ==========================================
+             HEADER HALAMAN
+            ========================================== --}}
     <div class="mb-4 text-start">
         <h2 class="fw-bold text-dark">Riwayat Laporan Saya</h2>
     </div>
 
+        {{-- ==========================================
+             TABEL RIWAYAT LAPORAN SISWA
+             ========================================== 
+             FITUR KHUSUS:
+             - Tabel biasa (BUKAN DataTables) untuk kemudahan maintenance
+             - Menampilkan 9 kolom informasi lengkap
+             - Aksi edit/hapus hanya untuk status 'Menunggu'
+             
+             KOLOM TABEL:
+             1. No - Nomor urut
+             2. Kategori - Jenis sarana yang dilaporkan
+             3. Lokasi & Keterangan - Tempat dan detail aduan
+             4. Foto Laporan - Bukti foto dari siswa (thumbnail + modal)
+             5. Status - Badge status (Menunggu/Proses/Selesai)
+             6. Feedback Admin - Tanggapan dari petugas
+             7. Foto Feedback - Bukti perbaikan dari admin
+             8. Aksi - Tombol edit dan hapus (hanya untuk status Menunggu)
+             9. Waktu - Tanggal dan jam pembuatan laporan
+        --}}
     <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
+                    {{-- HEADER TABEL --}}
                     <thead style="background-color: #800000; color: white;">
                         <tr>
                             <th class="py-3 ps-4 text-start">No</th>
@@ -29,7 +83,14 @@
                         </tr>
                     </thead>
                     <tbody>
+                    {{-- LOOPING DATA LAPORAN SISWA --}}
                         @forelse($laporan as $l)
+                            {{-- 
+                                LOGIKA WARNA BADGE BERDASARKAN STATUS
+                                - Menunggu: secondary (abu-abu)
+                                - Proses: warning (kuning) dengan teks gelap
+                                - Selesai: success (hijau)
+                            --}}                        
                         @php
                             $status_color = 'secondary';
                             if($l->status == 'Proses') $status_color = 'warning';
@@ -106,7 +167,25 @@
                                 <div class="text-muted" style="font-size: 0.75rem;">{{ date('H:i', strtotime($l->created_at)) }} WIB</div>
                             </td>
                         </tr>
-
+                            {{-- ==========================================
+                                 MODAL EDIT LAPORAN
+                                 ========================================== 
+                                 Fungsi: Mengedit laporan yang masih berstatus 'Menunggu'
+                                 
+                                FORM FIELD:
+                                - Kategori (dropdown dari tabel kategori)
+                                - Lokasi (dropdown dari tabel lokasi)
+                                - Keterangan (textarea)
+                                - Ganti Foto Bukti (file upload, opsional)
+                                
+                                ROUTE: PUT laporan.update
+                                CONTROLLER: SiswaDashboardController@update
+                                
+                                CATATAN PENTING:
+                                - Validasi dilakukan di controller
+                                - Foto baru akan menggantikan foto lama
+                                - Foto lama TIDAK otomatis terhapus dari folder
+                            --}}
                         <div class="modal fade" id="modalEdit{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content border-0 shadow" style="border-radius: 20px;">
@@ -150,12 +229,22 @@
                             </div>
                         </div>
 
+                            {{-- 
+                                MODAL PREVIEW FOTO LAPORAN (dari siswa)
+                                Modal transparan dengan background hitam transparan
+                                Klik gambar untuk menutup modal
+                            --}}                        
                         @if($l->foto)
                         <div class="modal fade" id="modalFotoSiswa{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-transparent border-0 text-center"><img src="{{ asset('upload_aspirasi/'.$l->foto) }}" class="img-fluid rounded-4 shadow-lg" data-bs-dismiss="modal" style="cursor: zoom-out;"></div></div>
                         </div>
                         @endif
 
+                            {{-- 
+                                MODAL PREVIEW FOTO FEEDBACK (dari admin)
+                                Sama seperti modal preview foto laporan
+                                Klik gambar untuk menutup modal
+                            --}}                        
                         @if(!empty($l->foto_feedback))
                         <div class="modal fade" id="modalFeedback{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
@@ -167,6 +256,8 @@
                         @endif
 
                         @empty
+
+                            {{-- TAMPILAN KETIKA TIDAK ADA LAPORAN --}}
                         <tr><td colspan="9" class="text-center py-5 text-muted">Belum ada data laporan.</td></tr>
                         @endforelse
                     </tbody>
@@ -176,6 +267,9 @@
     </div>
 </div>
 
+{{-- ==========================================
+     CUSTOM STYLE KHUSUS HALAMAN INI
+     ========================================== --}}
 <style>
     .text-maroon { color: #800000; }
     .extra-small { font-size: 0.7rem; }
