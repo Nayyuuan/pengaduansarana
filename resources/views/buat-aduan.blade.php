@@ -32,7 +32,7 @@
                         <div class="mb-4">
                             <label class="form-label fw-bold" style="color: #555;">Lokasi Utama</label>
                             <select name="id_lokasi" class="form-select py-2" style="border-radius: 10px; border: 1px solid #ddd;" required>
-                                <option value="">-- Pilih Lokasi Kejadian --</option>
+                                <option value="">-- Pilih Lokasi --</option>
                                 @foreach($lokasi as $lok)
                                     <option value="{{ $lok->id_lokasi }}">{{ $lok->nama_lokasi }}</option>
                                 @endforeach

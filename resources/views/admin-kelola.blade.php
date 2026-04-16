@@ -157,7 +157,7 @@
         padding: 5px 12px !important;
     }
     .dt-paging-button.current {
-        background: #800000 !important;
+        background: #ffffff !important;
         color: white !important;
         border: none !important;
     }

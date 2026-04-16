@@ -9,7 +9,6 @@
     <div class="row justify-content-center">
     <div class="mb-4 text-start">
         <h2 class="fw-bold text-dark">Riwayat Laporan Saya</h2>
-        <p class="text-muted">Pantau seluruh progress penanganan laporan kamu di sini.</p>
     </div>
 
     <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
@@ -162,7 +161,6 @@
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content bg-transparent border-0 text-center">
                                     <img src="{{ asset('upload_feedback/'.$l->foto_feedback) }}" class="img-fluid rounded-4 shadow-lg" data-bs-dismiss="modal" style="cursor: zoom-out;">
-                                    <p class="text-white mt-2 fw-bold">Bukti Perbaikan dari Admin</p>
                                 </div>
                             </div>
                         </div>
