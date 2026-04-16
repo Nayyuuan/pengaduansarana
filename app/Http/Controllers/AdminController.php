@@ -12,18 +12,20 @@ class AdminController extends Controller
     }
 
     // ==========================================
-    // 1. DASHBOARD ADMIN
+    // 1. DASHBOARD ADMIN (DI-UPDATE: TOTAL PENGGUNA & DIPROSES)
     // ==========================================
     public function index()
     {
         if (!$this->checkAdmin()) { return redirect('/login')->with('error', 'Login Admin dulu ya!'); }
 
-        $totalSiswa = DB::table('siswa')->count();
-        $totalAduan = DB::table('aspirasi')->count();
-        $menunggu = DB::table('aspirasi')->where('status', 'Menunggu')->count();
-        $selesai = DB::table('aspirasi')->where('status', 'Selesai')->count();
+        // Mengambil data statistik untuk dashboard
+        $totalPengguna = DB::table('siswa')->count(); // Nama variabel diubah jadi lebih universal
+        $totalAduan    = DB::table('aspirasi')->count();
+        $menunggu      = DB::table('aspirasi')->where('status', 'Menunggu')->count();
+        $diproses      = DB::table('aspirasi')->where('status', 'Proses')->count(); // Kolom baru
+        $selesai       = DB::table('aspirasi')->where('status', 'Selesai')->count();
 
-        return view('dashboard-admin', compact('totalSiswa', 'totalAduan', 'menunggu', 'selesai'));
+        return view('dashboard-admin', compact('totalPengguna', 'totalAduan', 'menunggu', 'diproses', 'selesai'));
     }
 
     // ==========================================
@@ -45,7 +47,7 @@ class AdminController extends Controller
                 'input_aspirasi.*', 
                 'aspirasi.status', 
                 'aspirasi.feedback', 
-                'aspirasi.foto_feedback', // <-- SEBELUMNYA INI LUPA DIPANGGIL NAY!
+                'aspirasi.foto_feedback', 
                 'siswa.nama', 
                 'kategori.ket_kategori',
                 'lokasi.nama_lokasi'
@@ -73,7 +75,7 @@ class AdminController extends Controller
         $namaFoto = null;
         if ($request->hasFile('foto_feedback')) {
             $file = $request->file('foto_feedback');
-            $namaFoto = "FB_" . time() . "_" . $file->getClientOriginalName();
+            $namaFoto = "feedback_" . time() . "_" . $file->getClientOriginalName();
             $file->move(public_path('upload_feedback'), $namaFoto);
         }
 
@@ -83,7 +85,6 @@ class AdminController extends Controller
             'updated_at' => now()
         ];
 
-        // Hanya update kolom foto jika ada foto baru yang dikirim
         if ($namaFoto) {
             $updateData['foto_feedback'] = $namaFoto;
         }
@@ -92,7 +93,7 @@ class AdminController extends Controller
 
         DB::table('log_aktivitas')->insert([
             'username' => session('username'),
-            'aktivitas' => 'Memberikan tanggapan & bukti foto pada laporan #' . $id,
+            'aktivitas' => 'Memberikan tanggapan pada laporan #' . $id,
             'created_at' => now()
         ]);
 
@@ -115,7 +116,7 @@ class AdminController extends Controller
                 'input_aspirasi.*', 
                 'aspirasi.status', 
                 'aspirasi.feedback', 
-                'aspirasi.foto_feedback', // <-- INI JUGA DITAMBAHIN NAY!
+                'aspirasi.foto_feedback',
                 'siswa.nama', 
                 'kategori.ket_kategori',
                 'lokasi.nama_lokasi'

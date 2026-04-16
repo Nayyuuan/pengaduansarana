@@ -1,119 +1,70 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
-    
+{{-- 1. CSS DATATABLES --}}
+<link rel="stylesheet" href="https://cdn.datatables.net/2.0.3/css/dataTables.dataTables.css">
+
+<div class="container py-4 text-start">
     <div class="mb-3">
-        <a href="{{ route('dashboard.admin') }}" class="btn btn-sm mb-3 fw-bold" 
-       style="color: #800000; border: 1px solid #800000; border-radius: 8px;">
-        ← Kembali ke Dashboard
+        <a href="{{ route('dashboard.admin') }}" class="btn-back">
+            ← Kembali ke Dashboard
         </a>
     </div>
 
     <div class="mb-4">
-        <h2 class="fw-bold text-dark">Kelola Aspirasi Siswa 📋</h2>
-        <p class="text-muted">Gunakan filter untuk mencari laporan tertentu dan berikan tanggapan segera.</p>
-    </div>
-
-    <!-- CARD FILTER -->
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 15px;">
-        <div class="card-body p-4">
-            <form action="{{ route('admin.kelola') }}" method="GET" class="row g-3">
-                <div class="col-md-3">
-                    <label class="small fw-bold">Filter Siswa</label>
-                    <select name="nis" class="form-select">
-                        <option value="">-- Semua Siswa --</option>
-                        @foreach($semuaSiswa as $s)
-                            <option value="{{ $s->nis }}" {{ request('nis') == $s->nis ? 'selected' : '' }}>{{ $s->nama }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="small fw-bold">Filter Kategori</label>
-                    <select name="id_kategori" class="form-select">
-                        <option value="">-- Semua Kategori --</option>
-                        @foreach($semuaKategori as $k)
-                            <option value="{{ $k->id_kategori }}" {{ request('id_kategori') == $k->id_kategori ? 'selected' : '' }}>{{ $k->ket_kategori }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="small fw-bold">Filter Status</label>
-                    <select name="status" class="form-select">
-                        <option value="">-- Semua --</option>
-                        <option value="Menunggu" {{ request('status') == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
-                        <option value="Proses" {{ request('status') == 'Proses' ? 'selected' : '' }}>Proses</option>
-                        <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="small fw-bold">Pilih Tanggal</label>
-                    <input type="date" name="tanggal" class="form-control" value="{{ request('tanggal') }}">
-                </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-maroon w-100 fw-bold">Cari</button>
-                </div>
-            </form>
-        </div>
+        <h2 class="fw-bold text-dark text-start">Kelola Aspirasi Warga Sekolah</h2>
     </div>
 
     <!-- TABEL DATA -->
-    <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+    <div class="card shadow-sm border-0 rounded-3 p-4">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 text-center">
+            <table id="myTable" class="table table-hover align-middle mb-0">
                 <thead style="background-color: #800000; color: white;">
                     <tr>
-                        <th class="py-3 ps-4">No</th>
-                        <th class="py-3">Pelapor</th>
-                        <th class="py-3 text-start">Detail & Lokasi</th> {{-- RATA KIRI --}}
-                        <th class="py-3">Foto</th>
-                        <th class="py-3">Status</th>
-                        <th class="py-3 pe-4">Aksi</th>
+                        <th class="py-3 ps-4 text-start">No</th>
+                        <th class="py-3 text-start">Pelapor & Kategori</th>
+                        <th class="py-3 text-start">Lokasi & Detail</th>
+                        <th class="py-3 text-start">Foto Laporan</th>
+                        <th class="py-3 text-start">Status</th>
+                        <th class="py-3 pe-4 text-start">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($laporan as $l)
                     <tr>
-                        <td class="ps-4 fw-bold">{{ $loop->iteration }}</td>
-                        <td class="text-start">
-                            <div class="fw-bold">{{ $l->nama }}</div>
-                            <small class="text-muted">{{ $l->nis }}</small>
-                        </td>
+                        <td class="ps-4 fw-bold text-start">{{ $loop->iteration }}</td>
                         
-                        {{-- PERBAIKAN LOKASI: RATA KIRI + WARNA SESUAI STATUS --}}
+                        {{-- PELAPOR + KATEGORI (NIS & BLOK DIHAPUS) --}}
                         <td class="text-start">
-                            @php
-                                $warna_lokasi = 'secondary';
-                                if($l->status == 'Proses') $warna_lokasi = 'warning text-dark';
-                                if($l->status == 'Selesai') $warna_lokasi = 'success';
-                            @endphp
-                            <span class="badge bg-{{ $warna_lokasi }} mb-1 shadow-sm">
-                                <i class="bi bi-geo-alt me-1"></i> {{ $l->nama_lokasi }}
-                            </span>
-                            <div class="small fw-bold text-dark">{{ $l->ket_kategori }}</div>
-                            <div class="small text-muted text-truncate" style="max-width: 250px;">{{ $l->ket }}</div>
+                            <div class="fw-bold text-dark">{{ $l->nama }}</div>
+                            <div class="small text-muted">{{ $l->ket_kategori }}</div>
                         </td>
 
-                        <td>
+                        {{-- LOKASI + DETAIL --}}
+                        <td class="text-start">
+                            <div class="fw-bold text-dark">{{ $l->nama_lokasi }}</div>
+                            <div class="small text-muted text-wrap" style="max-width: 250px;">{{ $l->ket }}</div>
+                        </td>
+
+                        <td class="text-start">
                             @if($l->foto)
-                                <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" width="50" height="50" class="rounded border shadow-sm" style="object-fit: cover; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalFoto{{ $l->id_pelaporan }}">
+                                <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" width="55" height="55" class="rounded shadow-sm border" style="object-fit: cover; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalFoto{{ $l->id_pelaporan }}">
                             @else
                                 <span class="text-muted small italic">No Photo</span>
                             @endif
                         </td>
-                        <td>
-                            @if($l->status == 'Menunggu')
-                                <span class="badge rounded-pill bg-secondary px-3">Menunggu</span>
-                            @elseif($l->status == 'Proses')
-                                <span class="badge rounded-pill bg-warning text-dark px-3">Diproses</span>
-                            @else
-                                <span class="badge rounded-pill bg-success px-3">Selesai</span>
-                            @endif
+
+                        <td class="text-start">
+                            @php
+                                $status_color = 'secondary';
+                                if($l->status == 'Proses') $status_color = 'warning text-dark';
+                                if($l->status == 'Selesai') $status_color = 'success';
+                            @endphp
+                            <span class="badge rounded-pill bg-{{ $status_color }} px-3">{{ $l->status }}</span>
                         </td>
-                        <td class="pe-4">
-                            <button class="btn btn-maroon btn-sm px-3 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#modalTanggapi{{ $l->id_pelaporan }}">
-                                Tanggapi
-                            </button>
+
+                        <td class="pe-4 text-start">
+                            <button class="btn btn-maroon btn-sm px-3 rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#modalTanggapi{{ $l->id_pelaporan }}">Tanggapi</button>
                         </td>
                     </tr>
 
@@ -121,58 +72,46 @@
                     <div class="modal fade" id="modalTanggapi{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content border-0" style="border-radius: 20px;">
-                                {{-- WAJIB TAMBAH enctype="multipart/form-data" --}}
                                 <form action="{{ route('admin.tanggapi', $l->id_pelaporan) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
-                                    <div class="modal-body p-4">
-                                        <h5 class="fw-bold text-maroon mb-3 text-start">Kasih Tanggapan</h5>
-                                        <div class="mb-3 p-3 bg-light rounded-3 small text-start">
-                                            <p class="mb-1 text-muted">Aspirasi: <b>"{{ $l->ket }}"</b></p>
+                                    <div class="modal-body p-4 text-start">
+                                        <h5 class="fw-bold text-maroon mb-3">Kasih Tanggapan</h5>
+                                        <div class="mb-3 p-3 bg-light rounded-3 small">
+                                            <p class="mb-1 text-muted">Aduan: <b>"{{ $l->ket }}"</b></p>
                                         </div>
-                                        <div class="mb-3 text-start">
-                                            <label class="form-label fw-bold">Update Status</label>
-                                            <select name="status" class="form-select" required>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold small">Status</label>
+                                            <select name="status" class="form-select shadow-none" required>
                                                 <option value="Menunggu" {{ $l->status == 'Menunggu' ? 'selected' : '' }}>Menunggu</option>
-                                                <option value="Proses" {{ $l->status == 'Proses' ? 'selected' : '' }}>Sedang Diproses</option>
-                                                <option value="Selesai" {{ $l->status == 'Selesai' ? 'selected' : '' }}>Selesai / Tuntas</option>
+                                                <option value="Proses" {{ $l->status == 'Proses' ? 'selected' : '' }}>Proses</option>
+                                                <option value="Selesai" {{ $l->status == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                                             </select>
                                         </div>
-                                        <div class="mb-3 text-start">
-                                            <label class="form-label fw-bold">Pesan Feedback</label>
-                                            <textarea name="feedback" class="form-control" rows="4" placeholder="Balasan untuk siswa..." required>{{ $l->feedback }}</textarea>
+                                        <div class="mb-3">
+                                            <label class="form-label fw-bold small">Balasan Petugas</label>
+                                            <textarea name="feedback" class="form-control shadow-none" rows="4" required>{{ $l->feedback }}</textarea>
                                         </div>
-                                        {{-- INPUT FOTO FEEDBACK DARI ADMIN --}}
-                                        <div class="mb-0 text-start">
-                                            <label class="form-label fw-bold">Upload Bukti Perbaikan (Optional)</label>
-                                            <input type="file" name="foto_feedback" class="form-control" accept="image/*">
-                                            <small class="text-muted italic">Kirim foto bukti jika sarana sudah diperbaiki.</small>
+                                        <div class="mb-0">
+                                            <label class="form-label fw-bold small">Foto Bukti (Optional)</label>
+                                            <input type="file" name="foto_feedback" class="form-control shadow-none" accept="image/*">
                                         </div>
                                     </div>
                                     <div class="modal-footer border-0 p-4 pt-0">
-                                        <button type="submit" class="btn btn-maroon w-100 py-2 fw-bold" style="border-radius: 10px;">Simpan Tanggapan</button>
+                                        <button type="submit" class="btn btn-maroon w-100 py-2 fw-bold" style="border-radius: 10px;">Simpan Perubahan</button>
                                     </div>
                                 </form>
                             </div>
                         </div>
                     </div>
 
-                    <!-- MODAL FOTO -->
+                    {{-- MODAL FOTO --}}
                     @if($l->foto)
                     <div class="modal fade" id="modalFoto{{ $l->id_pelaporan }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content bg-transparent border-0">
-                                <div class="modal-body p-0 text-center">
-                                    <img src="{{ asset('upload_aspirasi/'.$l->foto) }}" class="img-fluid rounded-4 shadow-lg" data-bs-dismiss="modal" style="cursor: zoom-out;">
-                                </div>
-                            </div>
-                        </div>
+                        <div class="modal-dialog modal-dialog-centered"><div class="modal-content bg-transparent border-0 text-center"><img src="{{ asset('upload_aspirasi/'.$l->foto) }}" class="img-fluid rounded-4 shadow-lg" data-bs-dismiss="modal"></div></div>
                     </div>
                     @endif
 
                     @empty
-                    <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">Laporan tidak ditemukan.</td>
-                    </tr>
                     @endforelse
                 </tbody>
             </table>
@@ -180,11 +119,52 @@
     </div>
 </div>
 
+{{-- JS DATATABLES --}}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/2.0.3/js/dataTables.js"></script>
+
+<script>
+    $(document).ready( function () {
+        $('#myTable').DataTable({
+            "searching": true, 
+            "paging": true,
+            "ordering": true,
+            "language": {
+                "sSearch": "Cari Laporan:",
+                "sLengthMenu": "Tampilkan _MENU_ data",
+                "sInfo": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                "oPaginate": {
+                    "sPrevious": "←",
+                    "sNext": "→"
+                }
+            }
+        });
+    });
+</script>
+
 <style>
-    .btn-maroon { background: #800000; color: white; border: none; transition: 0.3s; }
-    .btn-maroon:hover { background: #550000; color: white; transform: translateY(-2px); }
+    .btn-maroon { background: #800000; color: white; border: none; }
+    .btn-maroon:hover { background: #550000; color: white; }
     .text-maroon { color: #800000; }
     .btn-back { display: inline-block; padding: 6px 20px; color: #800000; border: 1.5px solid #800000; border-radius: 50px; text-decoration: none; font-weight: 700; font-size: 0.9rem; transition: 0.3s; }
     .btn-back:hover { background-color: #800000; color: white; }
+
+    .dt-paging-button {
+        border: 1px solid #ddd !important;
+        margin: 0 3px !important;
+        border-radius: 8px !important;
+        color: #800000 !important;
+        padding: 5px 12px !important;
+    }
+    .dt-paging-button.current {
+        background: #800000 !important;
+        color: white !important;
+        border: none !important;
+    }
+    .dt-paging-button:hover:not(.current) {
+        background: #fdf2f2 !important;
+        color: #800000 !important;
+        border-color: #800000 !important;
+    }
 </style>
 @endsection
